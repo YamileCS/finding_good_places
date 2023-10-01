@@ -1,788 +1,520 @@
-openapi: 3.0.3
+openapi: 3.0.0
 info:
-  title: FOURSQUARE - 01/10/2023
-  description: |-
-    This is a improve foursquare API docs.
+  title:  FOURSQUARE - 01/10/2023
+  description: >-
+    **INTRODUCTION**
 
-    
-    Some useful links:
-    - [The official foursquare documentation docs](https://location.foursquare.com/developer/reference/place-search)
+    REST API specification for FOURSQUARE API.
+
+    This API is based on [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) principles and uses [JSON](https://en.wikipedia.org/wiki/JSON) to serialize data.
+
+
+    **VERBS**
+
+
+    As such, the API uses http methods as **verbs** as follows:
+      * **GET** - To retrieve a resource or list of resources
+      * **POST** - To create or update a resource
+      * **PUT** - To update a resource
+      * **DELETE** - To delete a resource
+
+
+    **STATUS CODES**
+
+
+    It also uses http **status codes** in responses to inform about the status of the response. Some usual response status codes and meanings are as follows:
+      * _**200**_ - **OK** - the request was successful (some API calls may return 201 or 204 instead).
+      * _**201**_ - **Created** - the request was successful and a resource was created.
+      * _**204**_ - **No Content** - the request was successful but there is nothing to return (i.e. an empty list).
+      * _**400**_ - **Bad Request** - the request wasn't understood, it was missing required parameters or the parameters didn't pass a validation test.
+      * _**401**_ - **Unauthorized** - authentication failed or the user doesn't have permissions for the requested operation.
+      * _**403**_ - **Forbidden** - access denied, mainly for an expired token.
+      * _**404**_ - **Not Found** - the resource wasn't found or doesn't exists.
+      * _**405**_ - **Method not allowed** - the requested method is not supported for the resource. Returned any time you use a http method in a resource that doesn't support it.
+      * _**409**_ - **Conflict** -  there was a conflict with the request, i.e. if there is an attempt to create a resource that already exists.
+      * _**429**_ - **Too Many Requests** - exceeded API calls request rate limit by a single client. May be returned by any method.
+      * _**500**_ - **Internal Server Error** - a generic error message, given when an unexpected condition was encountered and no more specific message is suitable. May be returned by any method.
+      * _**501**_ - **Not Implemented** - the requested method is not implemented.
+      * _**503**_ - **Service Unavailable** - service is temporary unavailable (i.i. scheduled maintenance).
+
+
+    **SECURITY**
+
+
+    This API uses HTTP over [TLS](https://en.wikipedia.org/wiki/Transport_Layer_Security) (aka [HTTPS](https://en.wikipedia.org/wiki/HTTPS)) to provide communications security and privacy over the Internet.
+
+
+    **AUTHENTICATION**
+
+
+    If a method requires authentication it is stated in its reference.
+    The API uses [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) in the login method. Login method should return a token used in the next methods that require authorization according to [Bearer Token Authentication](https://oauth.net/2/bearer-tokens).
+
+
+
+
+    **TODO**
+
+    This document is still a work in progress:
+      * Purchases
+        * Payment information (Not in web)
+      * Notification preferences and history? Wait for UX.
+
   version: 1.0.0
+  contact:
+    name: Yamile
+    email: c.s.yamile@gmail.com
 servers:
-  - url: https://api.foursquare.com/v3
+  - url: ' url: https://api.foursquare.com/v3'
+    description: main server
 tags:
-  - name: pet
-    description: Everything about your Pets
-    externalDocs:
-      description: Find out more
-      url: http://swagger.io
-  - name: store
-    description: Access to Petstore orders
-    externalDocs:
-      description: Find out more about our store
-      url: http://swagger.io
-  - name: user
-    description: Operations about user
+  - name: place
+    description: 'Operations related with the searchs and data'
+
 paths:
-  /pet:
-    put:
-      tags:
-        - pet
-      summary: Update an existing pet
-      description: Update an existing pet by Id
-      operationId: updatePet
-      requestBody:
-        description: Update an existent pet in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'          
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-        '405':
-          description: Validation exception
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      description: Add a new pet to the store
-      operationId: addPet
-      requestBody:
-        description: Create a new pet in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'          
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByStatus:
+  /places:
     get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: status
-          in: query
-          description: Status values that need to be considered for filter
-          required: false
-          explode: true
-          schema:
-            type: string
-            default: available
-            enum:
-              - available
-              - pending
-              - sold
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'          
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid status value
+      summary: Search for places in the FSQ Places database using a location
+      description: >-
+        Search for places in the FSQ Places database using a location and querying by name, category name, telephone number, taste label, or chain name. For example, search for "coffee" to get back a list of recommended coffee shops.
+      
+        You may pass a location with your request by using one of the following options. If none of the following options are passed, Place Search defaults to geolocation using ip biasing with the optional radius parameter.
+          * ll & radius (circular boundary)
+          * near (geocodable locality)
+          * ne & sw (rectangular boundary)
       security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByTags:
-    get:
+        - BasicAuth: []
       tags:
-        - pet
-      summary: Finds Pets by tags
-      description: Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
-      operationId: findPetsByTags
+        - place
       parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: false
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
+        - $ref: '#/components/parameters/placeQueryParam'
+        - $ref: '#/components/parameters/placeLlParam'
+
       responses:
         '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'          
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/{petId}:
-    get:
-      tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'          
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - api_key: []
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      description: ''
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: name
-          in: query
-          description: Name of pet that needs to be updated
-          schema:
-            type: string
-        - name: status
-          in: query
-          description: Status of pet that needs to be updated
-          schema:
-            type: string
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    delete:
-      tags:
-        - pet
-      summary: Deletes a pet
-      description: delete a pet
-      operationId: deletePet
-      parameters:
-        - name: api_key
-          in: header
-          description: ''
-          required: false
-          schema:
-            type: string
-        - name: petId
-          in: path
-          description: Pet id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '400':
-          description: Invalid pet value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/{petId}/uploadImage:
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      description: ''
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: additionalMetadata
-          in: query
-          description: Additional Metadata
-          required: false
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /store/inventory:
-    get:
-      tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      description: Place a new order in the store
-      operationId: placeOrder
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Order'
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '405':
-          description: Invalid input
-  /store/order/{orderId}:
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of order that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'          
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      requestBody:
-        description: Created user object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        default:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'          
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        default:
-          description: successful operation
-  /user/login:
-    get:
-      tags:
-        - user
-      summary: Logs user into the system
-      description: ''
-      operationId: loginUser
-      parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: false
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: false
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
+          description: >-
+            OK
+            <br/>The authorization information was correct (valid user+password combination)
           headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
+            User-Token:
               schema:
                 type: string
-                format: date-time
-          content:
-            application/xml:
-              schema:
-                type: string
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ''
-      operationId: logoutUser
-      parameters: []
-      responses:
-        default:
-          description: successful operation
-  /user/{username}:
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ''
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
+                description: The user token, required for the next requests
+                example: '9O1JkDLzRQRX233T2JWUr2PYeQq44100'
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/User'          
-            application/xml:
               schema:
                 $ref: '#/components/schemas/User'
         '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-    put:
-      tags:
-        - user
-      summary: Update user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
-      parameters:
-        - name: username
-          in: path
-          description: name that need to be deleted
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Update an existent user in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        default:
-          description: successful operation
-    delete:
-      tags:
-        - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
-      parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
-      responses:
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
+          $ref: '#/components/responses/400BadRequest'
+        '401':
+          $ref: '#/components/responses/401Unauthorized'
+        '429':
+          $ref: '#/components/responses/429TooManyRequests'
+        '500':
+          $ref: '#/components/responses/500ServerError'
+
 components:
+  securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+    BearerAuth:
+      type: http
+      scheme: bearer
   schemas:
-    Order:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        petId:
-          type: integer
-          format: int64
-          example: 198772
-        quantity:
-          type: integer
-          format: int32
-          example: 7
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          example: approved
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          type: boolean
-      xml:
-        name: order
-    Customer:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 100000
-        username:
-          type: string
-          example: fehguy
-        address:
-          type: array
-          xml:
-            name: addresses
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Address'
-      xml:
-        name: customer
-    Address:
-      type: object
-      properties:
-        street:
-          type: string
-          example: 437 Lytton
-        city:
-          type: string
-          example: Palo Alto
-        state:
-          type: string
-          example: CA
-        zip:
-          type: string
-          example: '94301'
-      xml:
-        name: address
-    Category:
-      type: object
+    User:
       properties:
         id:
           type: integer
           format: int64
           example: 1
-        name:
-          type: string
-          example: Dogs
-      xml:
-        name: category
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
         username:
           type: string
-          example: theUser
-        firstName:
-          type: string
-          example: John
-        lastName:
-          type: string
-          example: James
+          format: email
+          example: 'user@example.com'
         email:
           type: string
-          example: john@email.com
-        password:
+          format: email
+          example: 'user@example.com'
+        kennitala:
           type: string
-          example: '12345'
+          description: Icelandic identification number, only for Iceland
+          example: '0201646899'
+        prefix_phone:
+          type: string
+          minLength: 3
+          example: '+370'
         phone:
           type: string
-          example: '12345'
-        userStatus:
+          minLength: 9
+          example: '52102222'
+        name:
+          type: string
+          example: 'John'
+        last_name:
+          type: string
+          nullable: true
+        ikeafamily:
+          type: boolean
+          nullable: true
+          example: true
+        ikeafamily_price_draw:
+          type: boolean
+          nullable: true
+          example: true
+        newsletter:
+          nullable: true
+          type: boolean
+          example: true
+        gender:
+          nullable: true
+          type: string
+          example: male
+        living_with_children:
+          nullable: true
           type: integer
-          description: User Status
-          format: int32
           example: 1
-      xml:
-        name: user
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
+        city:
+          nullable: true
           type: string
-      xml:
-        name: tag
-    Pet:
-      required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        name:
+          example: "Vilna"
+        code_locale_newsletter:
+          nullable: true
           type: string
-          example: doggie
-        category:
-          $ref: '#/components/schemas/Category'
-        photoUrls:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            type: string
-            xml:
-              name: photoUrl
-        tags:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
+          example: "en_lt"
+        birthday:
           type: string
-          description: pet status in the store
+          nullable: true
+          format: date-time ISO8601
+          example: '2018-10-09T13:23:42Z'
+        active:
+          type: boolean
+          nullable: false
+          example: false
+        loyalty_card:
+          type: string
+          nullable: true
+          example: '9428364033000400235'
+        loyalty_card_pkpass_url:
+          type: string
+          description: url to get user's pkpass file
+          nullable: true
+          example: "https://test-rama8-lt.deswebislas.com/en/clientapi/v1/user/ikeafamily/pkpass"
+        type:
+          nullable: false
+          type: string
           enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: pet
-    ApiResponse:
-      type: object
-      properties:
-        code:
+            - "PARTICULAR"
+            - "BUSINESS"
+          example: "BUSINESS"
+    
+        fcm_notifications_active:
+          nullable: true
+          type: boolean
+          example: true
+
+      required:
+        - id
+        - email
+        - prefix_phone
+        - phone
+        - name
+        - last_name
+  
+  parameters:
+    acceptLanguageHeaderParam:
+      in: header
+      name: Accept-Language
+      description: The language in which the client wants the response. View [Accept Language Header definition](https://developer.mozilla.org/es/docs/Web/HTTP/Headers/Accept-Language)
+      schema:
+        type: string
+      examples:
+        en:
+          value: 'en'
+          
+    placeQueryParam:
+      in: query
+      name: query
+      description: A string to be matched against all content for this place, including but not limited to venue name, category, telephone number, taste, and tips.
+      schema:
+        type: string
+      allowEmptyValue: true
+    placeLlParam:
+      in: query
+      name: ll
+      description: The latitude/longitude around which to retrieve place information. This must be specified as latitude,longitude (e.g., ll=41.8781,-87.6298).
+      schema:
+        type: string
+      allowEmptyValue: true
+    placeRadiusParam:
+      in: query
+      name: ll
+      description: Sets a radius distance (in meters) used to define an area to bias search results. The maximum allowed radius is 100,000 meters. Radius can be used in combination with ll or ip biased geolocation only. By using radius, global search results will be omitted.
+      schema:
+        type: integer
+        format: int64
+      allowEmptyValue: true
+      
+      
+      
+    addressIdPathParam:
+      in: path
+      name: addressId
+      description: Address ID
+      required: true
+      schema:
+        type: integer
+        format: int64
+    checkoutTokenHeaderParam:
+      in: header
+      name: Checkout-Token
+      required: true
+      description: >-
+        This is a token for a order checkout.
+        Used in checkout process, so it must be sent in all order checkout requests. It expires in 15 minutes.
+      schema:
+        type: string
+        format: uuid
+        example: "a999c3d6f1d04317a80122ee79f4d99c"
+    customPageIdPathParam:
+      in: path
+      name: customPageId
+      description: the custom page id
+      schema:
+        type: string
+      examples:
+        lack:
+          value: 322
+      required: true
+    deviceNotificationTokenQueryParam:
+      in: query
+      name: deviceNotificationToken
+      description: device notification token that sends request
+      schema:
+        type: string
+        format: uuid
+      example: "c9rHlbAsWjI:APA91bEbT4pmhLeC6pC5AfOxeWwdN8hpMzSaLIrnhFwPKFeknLDcX3pPmDxaMAEVsZUdUhnoVJasmogP3fOiJ47kQk3Jq-_LDX1i36PDejyK1f3L-xMSpXyI9_MwS3QYvFdBtXRZufEI"
+    documentTypeParam:
+      in: query
+      name: documentType
+      description: The type of document. Possible values are **receipt** and **invoice**.
+      required: true
+      example: "receipt"
+      schema:
+        type: string
+    emailQueryParamRequired:
+      in: query
+      name: email
+      description: An email
+      schema:
+        type: string
+        format: email
+      examples:
+        user:
+          value: user@example.com
+          summary: "An example email"
+      required: true
+    inspirationIdPathParam:
+      in: path
+      name: inspirationId
+      description: the inspiration id
+      schema:
+        type: string
+      examples:
+        lack:
+          value: 322
+      required: true
+    languageQueryParam:
+      in: query
+      name: lang
+      description: The language in which the client wants the response. Overrides Accept-Language header if it exists.
+      schema:
+        type: string
+      examples:
+        en:
+          value: 'en'
+    limitQueryParam:
+      in: query
+      name: limit
+      description: Using with pageQueryParam. The number of products per page.
+      schema:
+        type: integer
+        format: int64
+      example: 10
+    orderIdPathParam:
+      in: path
+      name: orderId
+      description: The order identifier
+      schema:
+        type: integer
+        format: int64
+      required: true
+      example: 2600
+    pagePathParam:
+      in: path
+      name: pageId
+      description: The page id
+      schema:
+        type: integer
+        format: int64
+      example: 1
+      required: true
+    pageQueryParam:
+      in: query
+      name: page
+      description: Using with limitQueryParam. The page number for paginated searchs.
+      schema:
+        type: integer
+        format: int64
+      example: 1
+    pathQueryParam:
+      in: query
+      name: path
+      description: the range path
+      schema:
+        type: string
+      examples:
+        en:
+          value: 'en/bathroom/bathroom-accessories'
+      required: true
+    productIdPathParam:
+      in: path
+      name: productId
+      description: The product id
+      schema:
+        type: string
+      examples:
+        lack:
+          value: 40431535
+          summary: "LACK Coffee table"
+      required: true
+    productListIdQueryParam:
+      in: query
+      name: productListId
+      description: The list of products id splited by comma.
+      schema:
+        type: string
+      examples:
+        first:
+          value: '1132,35534,53454'
+      required: true
+    quantityQueryParam:
+      in: query
+      name: quantity
+      description: The quantity of this product
+      schema:
+        type: integer
+        format: int32
+      examples:
+        first:
+          value: 1
+      required: true
+    serviceTypeIdPathParam:
+      in: path
+      name: serviceTypeId
+      description: The service type id
+      schema:
+        type: integer
+        format: int64
+      examples:
+        Home Delivery:
+          value: 1
+          summary: Home Delivery
+      required: true
+    shopIdHeaderParam:
+      in: header
+      name: Shop-Id
+      description: The shop identifier.
+      schema:
+        type: number
+        format: int32
+        nullable: true
+      allowEmptyValue: true
+    shopIdQueryParam:
+      in: query
+      name: shopId
+      description: The shop identifier. Overrides Shop-Id header if it exists.
+      schema:
+        type: number
+        format: int32
+        nullable: true
+      allowEmptyValue: true
+    shopIdPathParam:
+      in: path
+      name: shopId
+      description: The shop identifier.
+      schema:
+        type: number
+        format: int32
+      required: true
+    slugQueryParam:
+      in: query
+      name: slug
+      description: the page slug
+      schema:
+        type: string
+      examples:
+        en:
+          value: 'stylish-work-spots-for-new-beginnings-idea'
+      required: true
+    token1PathParam:
+      in: path
+      name: token1
+      description: The user token activate account
+      schema:
+        type: string
+      required: true
+      example: 'TUWFGKPk'
+    token2PathParam:
+      in: path
+      name: token2
+      description: The user token activate account
+      schema:
+        type: string
+      required: true
+      example: 'ee5c7a70992999c76049a1bbb5d415f8b8bbd49f'
+    userIdPathParam:
+      in: path
+      name: userId
+      description: The user identifier.
+      schema:
+        type: integer
+        format: int64
+      required: true
+    versionQueryParam:
+        in: query
+        name: version
+        description: The version of this modification. Should be higher than the current one. Any update sent with a lower version than the current one in the server will be ignored.
+        schema:
           type: integer
           format: int32
-        type:
-          type: string
-        message:
-          type: string
-      xml:
-        name: '##default'
-  requestBodies:
-    Pet:
-      description: Pet object that needs to be added to the store
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            $ref: '#/components/schemas/Pet'
-    UserArray:
-      description: List of user object
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/User'
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+        examples:
+          first:
+            value: 1
+        required: true
+  responses:
+    204NoContent:
+      description:
+        No Content<br/>The request have been executed successfully but there are no results.
+    400BadRequest:
+      description: >-
+        Bad Request<br/>The request had a wrong format or didn't pass
+        validation.
+    401Unauthorized:
+      description: >-
+        Unauthorized<br/>The user + password combination in the passed
+        credentials is wrong or missing.
+    403Forbidden:
+      description: >-
+        Forbidden<br/>The request is correct but server denies because any reason, i.e. user not confirmed or order token expiration.
+    404NotFound:
+      description: >-
+        Not Found<br/>The requested resource doesn't exist.
+    429TooManyRequests:
+      description: >-
+        Too Many Requests<br/>Exceeded API calls request rate limit by a single client.
+    500ServerError:
+      description: >-
+        Server Error<br/>The method will respond whith a 500 status code when
+        there is any error in the server side.
